@@ -1,7 +1,6 @@
-from django.contrib import messages
+from django.contrib import auth, messages
 from django.contrib.auth.models import User
 from django.contrib.messages import constants
-from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
 from .utils import cadastro_is_valid
@@ -17,6 +16,25 @@ def cadastro(request):
         confirmar_senha = request.POST['confirmar_senha']
 
         if not cadastro_is_valid(request, nome, email, senha, confirmar_senha):
+            return redirect(to='cadastro')
+
+        user = User.objects.filter(username=nome)
+        user_email = User.objects.filter(email=email)
+
+        if user.exists():
+            messages.add_message(
+                request,
+                constants.WARNING,
+                message='Este usuário já existe.'
+            )
+            return redirect(to='cadastro')
+
+        if user_email.exists():
+            messages.add_message(
+                request,
+                constants.WARNING,
+                message='Este email já está cadastrado.'
+            )
             return redirect(to='cadastro')
 
         try:
@@ -35,10 +53,42 @@ def cadastro(request):
         except:
             messages.add_message(
                 request,
-                constants.WARNING,
-                message='Este usuário já existe.'
+                constants.ERROR,
+                message='Erro interno do sistema.'
             )
             return redirect(to='cadastro')
 
     else:
+        if request.user.is_authenticated:
+            return redirect(to='/divulgar/novo_pet')
+
         return render(request, 'cadastro.html')
+
+
+def login(request):
+    if request.method == 'POST':
+        nome = request.POST['nome']
+        senha = request.POST['senha']
+        user = auth.authenticate(username=nome, password=senha)
+
+        if not user:
+            messages.add_message(
+                request,
+                constants.ERROR,
+                message='Usuário ou senha inválidos'
+            )
+            return redirect(to='login')
+        else:
+            auth.login(request, user)
+            return redirect(to='/divulgar/novo_pet')
+
+    else:
+        if request.user.is_authenticated:
+            return redirect(to='/divulgar/novo_pet')
+
+        return render(request, 'login.html')
+
+
+def sair(request):
+    auth.logout(request)
+    return redirect(to='login')
