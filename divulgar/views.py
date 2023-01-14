@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages import constants
 from django.shortcuts import redirect, render
+from django.utils.text import slugify
 
 from .models import Pet, Raca, Tag
 from .utils import pet_is_valid
@@ -37,7 +38,7 @@ def novo_pet(request):
             )
             p.save()
             p.tags.add(*tags)
-            p.slug = f'{nome}-{p.id}'
+            p.slug = slugify(f'{nome} {p.id}')
             p.save()
 
             messages.add_message(
@@ -45,7 +46,7 @@ def novo_pet(request):
                 constants.SUCCESS,
                 message=f'O pet "{nome}" foi cadastrado com sucesso.'
             )
-            return redirect(to='novo_pet')
+            return redirect(to='seus_pets')
 
         except:
             messages.add_message(
@@ -64,3 +65,34 @@ def novo_pet(request):
         }
 
         return render(request, 'novo_pet.html', context)
+
+
+def seus_pets(request):
+    pets = Pet.objects.filter(usuario=request.user)
+    context = {
+        'pets': pets
+    }
+
+    return render(request, 'seus_pets.html', context)
+
+
+@login_required(login_url='login')
+def remover_pet(request, slug):
+    pet = Pet.objects.filter(usuario=request.user).filter(slug=slug)
+
+    if pet:
+        pet.delete()
+
+        messages.add_message(
+            request,
+            constants.WARNING,
+            message=f'Pet removido com sucesso.'
+        )
+        return redirect(to='seus_pets')
+    else:
+        messages.add_message(
+            request,
+            constants.ERROR,
+            message=f'Erro ao realizar a operação.'
+        )
+        return redirect(to='seus_pets')
