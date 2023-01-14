@@ -80,7 +80,7 @@ def login(request):
             return redirect(to='login')
         else:
             auth.login(request, user)
-            return redirect(to='/divulgar/novo_pet')
+            return redirect(to='seus_pets')
 
     else:
         if request.user.is_authenticated:
