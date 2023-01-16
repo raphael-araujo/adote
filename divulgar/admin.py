@@ -9,5 +9,5 @@ admin.site.register(Tag)
 
 @admin.register(Pet)
 class PetAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'raca')
+    list_display = ('nome', 'raca', 'usuario')
     prepopulated_fields = {'slug': ('nome',)}
