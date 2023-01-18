@@ -1,8 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages import constants
-from django.shortcuts import redirect, render
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
+
+from adotar.models import PedidoAdocao
 
 from .models import Pet, Raca, Tag
 from .utils import pet_is_valid
@@ -67,6 +70,7 @@ def novo_pet(request):
         return render(request, 'novo_pet.html', context)
 
 
+@login_required(login_url='login')
 def seus_pets(request):
     pets = Pet.objects.filter(usuario=request.user)
     context = {
@@ -96,3 +100,59 @@ def remover_pet(request, slug):
             message=f'Erro ao realizar a operação.'
         )
         return redirect(to='seus_pets')
+
+
+@login_required(login_url='login')
+def ver_pedidos_adocao(request):
+    pedidos = PedidoAdocao.objects.filter(
+        usuario=request.user).filter(status='AG')
+    context = {
+        'pedidos': pedidos
+    }
+
+    return render(request, 'ver_pedidos_adocao.html', context)
+
+
+@login_required(login_url='login')
+def processar_pedido(request, id):
+    status = request.GET.get('status')
+    pedido = get_object_or_404(PedidoAdocao, id=id)
+
+    try:
+        if status == 'A':
+            pedido.status = 'AP'
+            mensagem = f"""Olá {request.user}, sua adoção foi aprovada com sucesso!"""
+        elif status == 'R':
+            pedido.status = 'R'
+            mensagem = f"""Olá {request.user}, infelizmente não podemos dar prosseguimento 
+                        com a adoção, sentimos muito."""
+        else:
+            messages.add_message(
+                request,
+                constants.ERROR,
+                message='Erro ao concluir operação.'
+            )
+            return redirect(to='ver_pedidos_adocao')
+
+        pedido.save()
+
+        send_mail(
+            subject='Sua adoção foi processada',
+            message=mensagem,
+            from_email='teste@email.com.br',
+            recipient_list=[pedido.usuario.email,]
+        )
+        messages.add_message(
+            request,
+            constants.SUCCESS,
+            message='Pedido de adoção processado com sucesso.'
+        )
+        return redirect(to='ver_pedidos_adocao')
+
+    except:
+        messages.add_message(
+            request,
+            constants.ERROR,
+            message='Erro interno do sistema.'
+        )
+        return redirect(to='ver_pedidos_adocao')
