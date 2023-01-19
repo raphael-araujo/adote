@@ -2,8 +2,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages import constants
 from django.core.mail import send_mail
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
+from django.views.decorators.csrf import csrf_exempt
 
 from adotar.models import PedidoAdocao
 
@@ -156,3 +158,25 @@ def processar_pedido(request, id):
             message='Erro interno do sistema.'
         )
         return redirect(to='ver_pedidos_adocao')
+
+
+@login_required(login_url='login')
+def dashboard(request):
+    return render(request, 'dashboard.html')
+
+
+@csrf_exempt
+def api_adocoes_por_raca(request):
+    racas = Raca.objects.all()
+
+    quantidade_adocoes = []
+    for raca in racas:
+        adocoes = PedidoAdocao.objects.filter(pet__raca=raca).count()
+        quantidade_adocoes.append(adocoes)
+
+    racas = [raca.raca for raca in racas]
+    data = {
+        'quantidade_adocoes': quantidade_adocoes,
+        'labels': racas
+    }
+    return JsonResponse(data)
