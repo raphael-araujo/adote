@@ -15,7 +15,7 @@ from .utils import pet_is_valid
 
 
 @login_required(login_url='login')
-def novo_pet(request):
+def seus_pets(request):
     if request.method == 'POST':
         foto = request.FILES.get('foto')
         nome = request.POST['nome']
@@ -59,26 +59,18 @@ def novo_pet(request):
                 message='Erro interno do sistema.'
             )
             return redirect(to='novo_pet')
-
+        
     else:
+        pets = Pet.objects.filter(usuario=request.user)
         tags = Tag.objects.all()
         racas = Raca.objects.all()
         context = {
+            'pets': pets,
             'tags': tags,
             'racas': racas
         }
 
-        return render(request, 'novo_pet.html', context)
-
-
-@login_required(login_url='login')
-def seus_pets(request):
-    pets = Pet.objects.filter(usuario=request.user)
-    context = {
-        'pets': pets
-    }
-
-    return render(request, 'seus_pets.html', context)
+        return render(request, 'seus_pets.html', context)
 
 
 @login_required(login_url='login')
