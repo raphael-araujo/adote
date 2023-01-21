@@ -1,78 +1,131 @@
-{% load static %}
-<!doctype html>
-<html lang="pt-BR">
-    <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ATO.TE | Seus pets</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{% static 'usuarios/css/cadastro.css' %}" rel="stylesheet">
-    <link href="{% static 'divulgar/css/novo_pet.css' %}" rel="stylesheet">
-    <link href="{% static 'divulgar/css/seus_pet.css' %}" rel="stylesheet">
-    </head>
+{% extends 'base.html' %}
 
-    <body>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-2 bg-side sidebar">
-                    <h2>ADO.TE</h2>
-                    <hr>
-                </div>
-                <div class="col-md">
-                    <div class="wrapper">
-                        <div class="box width80">
-                            {% if messages %}
-                                <br>
-                                {% for message in messages %}
-                                    <div class="alert {{message.tags}}">
-                                        {{message}}
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                            <h3 class="font-vinho">Pets cadastrados</h3>
-                            <hr>
-                            {% if pets %}
-                                <table class="tabela" cellpadding="20">
-                                    <tr align="center">
-                                        <th>Foto</th>
-                                        <th>Nome</th>
-                                        <th>Raça</th>
-                                        <th>Status</th>
-                                        <th>Remover</th>
-                                    </tr>
-                                    {% for pet in pets %}
-                                        <tr class="tabela-linha" align="center">
-                                            <td width="20%">
-                                                <img width="50%" src="{{pet.foto.url}}">
-                                            </td>
-                                            <td>
-                                                {{ pet.nome }}
-                                            </td>
-                                            <td>
-                                                {{ pet.raca }}
-                                            </td>
-                                            <td>
-                                                {% if pet.status == "P" %}
-                                                    <span class="badge text-bg-primary">Para adoção</span>
-                                                    {% else %}
-                                                    <span class="badge text-bg-success">Adotado</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <a href="{% url 'remover_pet' pet.slug %}" class="btn btn-danger">REMOVER</a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </table>
-                            {% else %}
-                                <br>
-                                Não há pets cadastrados.
-                            {% endif %}
+{% block 'titulo' %}ADO.TE | Seus pets{% endblock  %}
+
+{% block 'body' %}
+    <div class="col-md">
+        <div class="wrapper">
+            <div class="box">
+                {% if messages %}
+                    <br>
+                    {% for message in messages %}
+                        <div class="alert {{message.tags}}">
+                            {{message}}
                         </div>
-                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div style="display: flex">
+                    <h3 class="font-vinho">Pets cadastrados</h3>
+                    <button type="button" class="btn-custom-secondary" data-bs-toggle="modal" data-bs-target="#modal" style="margin-left: auto;">
+                        Novo pet
+                    </button>
+                </div>
+                <hr>
+                {% if pets %}
+                    <table class="tabela" cellpadding="20">
+                        <tr align="center">
+                            <th>Foto</th>
+                            <th>Nome</th>
+                            <th>Raça</th>
+                            <th>Status</th>
+                            <th>Remover</th>
+                        </tr>
+                        {% for pet in pets %}
+                            <tr class="tabela-linha" align="center">
+                                <td width="20%">
+                                    <img width="50%" src="{{pet.foto.url}}">
+                                </td>
+                                <td>
+                                    {{ pet.nome }}
+                                </td>
+                                <td>
+                                    {{ pet.raca }}
+                                </td>
+                                <td>
+                                    {% if pet.status == "P" %}
+                                        <span class="badge text-bg-primary">Para adoção</span>
+                                        {% else %}
+                                        <span class="badge text-bg-success">Adotado</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'remover_pet' pet.slug %}" class="btn btn-danger">REMOVER</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <br>
+                    Não há pets cadastrados.
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="font-vinho" id="exampleModalLabel">Quero divulgar</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'seus_pets' %}" method="POST" enctype='multipart/form-data'> {% csrf_token %}
+                        {% if messages %}
+                            <br>
+                            {% for message in messages %}
+                                <div class="alert {{message.tags}}">
+                                    {{message}}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <input type="file" name="foto" class="form-control" required>
+                        <br>
+                        <span>Nome:<span>
+                        <input type="text" class="form-control" name="nome" placeholder="Digite o nome do pet..." required>
+                        <br>
+                        <span>Descrição:<span>
+                        <textarea class="form-control" name="descricao" placeholder="Descrição..."></textarea>
+                        <br>
+
+                        <div class="row">
+                            <div class="col-md">
+                                <span>Estado:</span>
+                                <input type="text" placeholder="Digite o estado do pet..." name="estado" class="form-control" required>
+                            </div>
+
+                            <div class="col-md">
+                                <span>Cidade:</span>
+                                <input type="text" placeholder="Digite a cidade do pet..." name="cidade" class="form-control" required>
+                            </div>
+                        </div>
+                        <br>
+                        <span>Telefone para contato:</span>
+                        <input type="text" placeholder="Digite o seu telefone..." name="telefone" class="form-control" required>
+                        <br>
+                        <span>Tags:</span>
+                        <select name="tags" multiple class="form-select">
+                            {% for tag in tags|dictsort:"tag" %}
+                                <option value="{{ tag.id }}">{{ tag }}</option>
+                            {% endfor %}
+                        </select>
+                        <br>
+                        </span>Raça:</span>
+                        <select name="raca" class="form-select">
+                            {% for raca in racas|dictsort:"raca" %}
+                                <option value="{{ raca.id }}">{{ raca }}</option>
+                            {% endfor %}
+                        </select>
+                        <br>
+                        <input type="submit" value="ENVIAR" class="btn-custom-primary">
+                    </form>
                 </div>
             </div>
         </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
-</html>
+    </div>
+
+{% endblock  %}

@@ -1,5 +1,5 @@
 .width80 {
-    width: 90vw;
+    width: 60vw;
 }
 
 .tabela {
@@ -9,4 +9,32 @@
 
 .tabela-linha {
     background-color: #e8e7e7;
+}
+
+.sidebar {
+    text-align: center;
+    padding: 20px;
+    background-color: #391D34;
+    color: white;
+    height: 100vh;
+
+}
+
+.wrapper {
+    margin-top: 3%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.box {
+    padding: 20px;
+    width: 60vw;
+    background: rgb(238, 238, 238);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, .3);
+}
+
+.font-vinho {
+    color: #A24D52;
 }
