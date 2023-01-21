@@ -127,3 +127,14 @@ def processar_pedido(request, id):
             message='Erro interno do sistema.'
         )
         return redirect(to='ver_pedidos_adocao')
+
+
+@login_required(login_url='login')
+def ver_pedidos_adocao(request):
+    pedidos = PedidoAdocao.objects.filter(
+        usuario=request.user).filter(status='AG')
+    context = {
+        'pedidos': pedidos
+    }
+
+    return render(request, 'ver_pedidos_adocao.html', context)
