@@ -1,63 +1,46 @@
-{% load static %}
-<!doctype html>
-<html lang="pt-BR">
-    <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ADO.TE | Pedidos de adoção</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{% static 'usuarios/css/cadastro.css' %}" rel="stylesheet">
-    <link href="{% static 'divulgar/css/novo_pet.css' %}" rel="stylesheet">
-    <link href="{% static 'divulgar/css/seus_pet.css' %}" rel="stylesheet">
-    <link href="{% static 'adotar/css/listar_pets.css' %}" rel="stylesheet">
-    </head>
+{% extends 'base.html' %}
 
-    <body>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-2 bg-side sidebar">
-                    <h2>ADO.TE</h2>
-                    <hr>
-                </div>
+{% block 'titulo' %}ADO.TE | Pedidos de adoção{% endblock %}
 
-                <div style="padding:60px" class="col-md">
-                    <div class="row">
-                        {% if messages %}
-                            <br>
-                            {% for message in messages %}
-                                <div class="alert {{message.tags}}">
-                                    {{message}}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                        
-                        {% if pedidos %}
-                            {% for pedido in pedidos %}
-                                <div class="col-md-3" style="margin-top: 20px;">
-                                    <div class="card" style="background-color: #D6D6D6;">
-                                        <div style="padding:10px">
-                                            <span clas="span-bold">{{pedido.pet.nome}}</span>
-                                        </div>
-                                        <img class="card-img-top" src="{{pedido.pet.foto.url}}" style="width:221px; height: 185px;">
-                                        <div class="card-body">
-                                            <h1 class="card-title">{{pedido.usuario.username}}</h1>
-                                            <span class="span-bold2">Telefone:</span>
-                                            <p>{{pedido.pet.telefone}}</p>
-                                            
-                                            <span class="span-bold2">Cidade:</span>
-                                            <p>{{pedido.pet.cidade}}</p>
-                                            <a href="{% url 'processar_pedido' pedido.id %}?status=A" class="btn btn-success btn-lg" style="font-size: medium;">Aprovar</a>
-                                            <a href="{% url 'processar_pedido' pedido.id %}?status=R" class="btn btn-danger btn-lg" style="font-size: medium;">Recusar</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <br>
-                            <hr>
-                            <p align="center">No momento não há pedidos de adoção.</p>
-                        {% endif %}
+{% block 'body' %}
+    <div style="padding:60px" class="col-md">
+        <div class="row">
+            {% if messages %}
+                <br>
+                {% for message in messages %}
+                    <div class="alert {{message.tags}}">
+                        {{message}}
                     </div>
-                </div>
-            </div>
+                {% endfor %}
+            {% endif %}
+
+            <h3 class="font-vinho">Pedidos de adoção</h3>
+            <hr>
+            {% if pedidos %}
+                {% for pedido in pedidos %}
+                    <div class="col-md-3" style="margin-top: 20px;">
+                        <div class="card" style="background-color: #D6D6D6;">
+                            <div style="padding:10px">
+                                <span clas="span-bold">{{pedido.pet.nome}}</span>
+                            </div>
+                            <img class="card-img-top" src="{{pedido.pet.foto.url}}" style="width:221px; height: 185px;">
+                            <div class="card-body">
+                                <span class="span-bold2">Usuário:</span>
+                                <p class="card-title">{{pedido.usuario.username}}</p>
+                                <span class="span-bold2">Email:</span>
+                                <p>{{pedido.usuario.email}}</p>
+                                <hr>
+                                <a href="{% url 'processar_pedido' pedido.id %}?status=A" class="btn btn-success btn-lg" style="font-size: medium;">Aprovar</a>
+                                <a href="{% url 'processar_pedido' pedido.id %}?status=R" class="btn btn-danger btn-lg" style="font-size: medium;">Recusar</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <br>
+                <hr>
+                <p align="center">No momento não há pedidos de adoção.</p>
+            {% endif %}
         </div>
+    </div>
+{% endblock  %}
