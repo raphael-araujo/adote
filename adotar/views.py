@@ -92,10 +92,10 @@ def processar_pedido(request, id):
             pedido.status = 'AP'
             pet.status = 'A'
             pet.save()
-            mensagem = f"""Olá {request.user}, sua adoção foi aprovada com sucesso!"""
+            mensagem = f"""Olá {pedido.usuario.username}, seu pedido de adoção foi aprovado com sucesso!"""
         elif status == 'R':
             pedido.status = 'R'
-            mensagem = f"""Olá {request.user}, infelizmente não podemos dar prosseguimento 
+            mensagem = f"""Olá {pedido.usuario.username}, infelizmente não podemos dar prosseguimento 
                         com a adoção, sentimos muito."""
         else:
             messages.add_message(
@@ -132,7 +132,8 @@ def processar_pedido(request, id):
 @login_required(login_url='login')
 def ver_pedidos_adocao(request):
     pedidos = PedidoAdocao.objects.filter(
-        usuario=request.user).filter(status='AG')
+        pet__usuario=request.user).filter(status='AG')
+
     context = {
         'pedidos': pedidos
     }
