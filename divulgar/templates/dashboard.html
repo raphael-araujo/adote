@@ -1,17 +1,20 @@
 {% extends 'base.html' %}
 
-{% block 'titulo' %}ADO.TE | Dashboards{% endblock %}
+{% block 'titulo' %}ADO.TE | Dashboard{% endblock %}
 
 {% block 'body' %}
     <div style="padding:40px" class="col-md" align="center">
         <h3 class="font-vinho">Quantidade de adoções por raça</h3>
         <br>
-        <div style="width: 60%;">
+        <hr>
+        <br>
+        <br>
+        <div style="width: 80%;">
             <canvas id="myChart"></canvas>
         </div>
     </div>
 
-    <!-- Dashboards -->
+    <!-- Dashboard -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         fetch("/divulgar/api_adocoes_por_raca/",{

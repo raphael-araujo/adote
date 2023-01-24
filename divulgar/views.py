@@ -59,7 +59,7 @@ def seus_pets(request):
                 message='Erro interno do sistema.'
             )
             return redirect(to='novo_pet')
-        
+
     else:
         pets = Pet.objects.filter(usuario=request.user)
         tags = Tag.objects.all()
@@ -102,7 +102,7 @@ def dashboard(request):
 
 @csrf_exempt
 def api_adocoes_por_raca(request):
-    racas = Raca.objects.all()
+    racas = Raca.objects.all().order_by('raca')
 
     quantidade_adocoes = []
     for raca in racas:
