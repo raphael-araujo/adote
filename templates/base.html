@@ -19,7 +19,27 @@
                 <img class="logo-margin-top" src="{% static 'usuarios/img/logo_adote.png' %}" width="30%">
                 <h2>ADO.TE</h2>
                 <hr>
-                asdadasd
+                <p>Olá <strong>{{ request.user }}</strong>, Seja bem vindo!</p>
+                <br>
+                <strong>
+                    <a href="{% url 'sair' %}" class="url-sidebar">
+                        Logout
+                    </a>
+                </strong>
+                <hr>
+                <br>
+                <a href="{% url 'seus_pets' %}" class="url-sidebar">
+                    <p>Home</p>
+                </a>
+                <a href="{% url 'ver_pedidos_adocao' %}" class="url-sidebar">
+                    <p>Pedidos de adoção</p>
+                </a>
+                <a href="{% url 'listar_pets' %}" class="url-sidebar">
+                    <p>Adotar</p>
+                </a>
+                <a href="{% url 'dashboard' %}" class="url-sidebar">
+                    <p>Dashboard</p>
+                </a>
             </div>
             {% block 'body' %}{% endblock  %}
         </div>
