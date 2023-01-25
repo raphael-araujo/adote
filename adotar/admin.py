@@ -5,4 +5,6 @@ from .models import PedidoAdocao
 
 # Register your models here.
 
-admin.site.register(PedidoAdocao)
+@admin.register(PedidoAdocao)
+class PetAdmin(admin.ModelAdmin):
+    list_display = ('pet', 'usuario', 'status')
