@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages import constants
-from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.text import slugify
 from django.views.decorators.csrf import csrf_exempt
@@ -27,7 +26,7 @@ def seus_pets(request):
         raca = request.POST['raca']
 
         if not pet_is_valid(request, foto, nome, descricao, estado, cidade, telefone, tags, raca):
-            return redirect(to='novo_pet')
+            return redirect(to='seus_pets')
 
         try:
             p = Pet(
@@ -58,7 +57,7 @@ def seus_pets(request):
                 constants.ERROR,
                 message='Erro interno do sistema.'
             )
-            return redirect(to='novo_pet')
+            return redirect(to='seus_pets')
 
     else:
         pets = Pet.objects.filter(usuario=request.user)
@@ -96,22 +95,33 @@ def remover_pet(request, slug):
 
 
 @login_required(login_url='login')
-def dashboard(request):
-    return render(request, 'dashboard.html')
-
-
 @csrf_exempt
-def api_adocoes_por_raca(request):
-    racas = Raca.objects.all().order_by('raca')
+def dashboard(request):
+    filtro_estado = request.GET.get('estado')
+    racas = [raca.raca for raca in Raca.objects.all().order_by('raca')]
+
+    estados = []
+    for pet in Pet.objects.all():
+        if not pet.estado in estados:
+            estados.append(pet.estado)
 
     quantidade_adocoes = []
     for raca in racas:
-        adocoes = PedidoAdocao.objects.filter(pet__raca=raca).count()
-        quantidade_adocoes.append(adocoes)
+        if filtro_estado:
+            pedidos_por_estado = PedidoAdocao.objects.filter(
+                pet__estado=filtro_estado).filter(pet__raca__raca=raca).filter(status='AP').count()
+            quantidade_adocoes.append(pedidos_por_estado)
+        else:
+            adocoes = PedidoAdocao.objects.filter(
+                pet__raca__raca=raca).filter(status='AP').count()
+            quantidade_adocoes.append(adocoes)
 
-    racas = [raca.raca for raca in racas]
-    data = {
+    context = {
         'quantidade_adocoes': quantidade_adocoes,
-        'labels': racas
+        'total_quantidade_adocoes': sum(quantidade_adocoes),
+        'labels': racas,
+        'estados': sorted(estados),
+        'filtro_estado': filtro_estado
     }
-    return JsonResponse(data)
+
+    return render(request, 'dashboard.html', context)
